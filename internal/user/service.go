@@ -13,15 +13,14 @@ import (
 type Store interface {
 	CreateUser(ctx context.Context, user *User) error
 	GetUserByUsername(ctx context.Context, username string) (*User, error)
-	UpdateUser(ctx context.Context, user *User) error
 }
 
 // Domain-level sentinels for the user bounded context.
 //   - ErrValidation: invariant / input-shape failure → 400 via errors.Is
 //   - ErrNotFound:   username does not exist in the users table → callers that
-//                    need timing parity with "user exists but wrong password"
-//                    (e.g. auth.Login) convert to a nil user at their boundary
-//                    and still run bcrypt via user.VerifyPassword.
+//     need timing parity with "user exists but wrong password"
+//     (e.g. auth.Login) convert to a nil user at their boundary
+//     and still run bcrypt via user.VerifyPassword.
 var (
 	ErrValidation = errors.New("user validation failed")
 	ErrNotFound   = errors.New("user not found")

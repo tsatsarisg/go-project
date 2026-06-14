@@ -45,20 +45,6 @@ type password struct {
 	hash []byte
 }
 
-// Matches reports whether plaintext is the password behind this hash.
-// Returns (false, nil) for a well-formed mismatch so callers don't need to
-// special-case bcrypt.ErrMismatchedHashAndPassword themselves.
-func (p password) Matches(plaintext string) (bool, error) {
-	err := bcrypt.CompareHashAndPassword(p.hash, []byte(plaintext))
-	if err == bcrypt.ErrMismatchedHashAndPassword {
-		return false, nil
-	}
-	if err != nil {
-		return false, err
-	}
-	return true, nil
-}
-
 type User struct {
 	ID           UserID    `json:"id"`
 	Username     string    `json:"username"`

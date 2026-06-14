@@ -27,14 +27,16 @@ func (pts *PostgresStore) Issue(ctx context.Context, userID user.UserID, ttl tim
 		return nil, err
 	}
 
-	if err := pts.Insert(ctx, token); err != nil {
+	if err := pts.insert(ctx, token); err != nil {
 		return nil, err
 	}
 
 	return token, nil
 }
 
-func (pts *PostgresStore) Insert(ctx context.Context, token *Token) error {
+// insert persists the hashed token row. Unexported because Issue is the only
+// caller and the auth.Store port no longer exposes a raw insert.
+func (pts *PostgresStore) insert(ctx context.Context, token *Token) error {
 	query := `
 		INSERT INTO tokens (hash, user_id, expiry, scope)
 		VALUES ($1, $2, $3, $4)`

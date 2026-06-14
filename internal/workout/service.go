@@ -78,8 +78,21 @@ func (s *Service) Create(ctx context.Context, cmd CreateWorkoutCommand) (*Workou
 	return s.store.CreateWorkout(ctx, w)
 }
 
-func (s *Service) Get(ctx context.Context, id WorkoutID) (*Workout, error) {
-	return s.store.GetWorkoutByID(ctx, id)
+// Get returns the workout only if it exists and belongs to userID. A workout
+// owned by another user yields ErrForbidden rather than the row — without this
+// the read path was a BOLA/IDOR hole (any authenticated caller could fetch any
+// workout by guessing its id), even though Create/Update/Delete already gate on
+// ownership. We load-then-authorize here so the policy sits next to the other
+// ownership rules; at this scale the extra row read is noise.
+func (s *Service) Get(ctx context.Context, id WorkoutID, userID user.UserID) (*Workout, error) {
+	w, err := s.store.GetWorkoutByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if w.UserID != userID {
+		return nil, ErrForbidden
+	}
+	return w, nil
 }
 
 // UpdateWorkoutCommand carries the patch plus the acting user's id so the

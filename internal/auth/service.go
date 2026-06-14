@@ -14,7 +14,6 @@ import (
 // lives behind this interface (see postgres_store.go) so token→identity
 // resolution is owned by one boundary.
 type Store interface {
-	Insert(ctx context.Context, token *Token) error
 	Issue(ctx context.Context, userID user.UserID, ttl time.Duration, scope string) (*Token, error)
 	DeleteAllForUser(ctx context.Context, scope string, userID user.UserID) error
 	ResolvePrincipal(ctx context.Context, scope, plaintext string) (*Principal, error)

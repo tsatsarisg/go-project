@@ -79,6 +79,7 @@ func New(ctx context.Context, cfg *config.Config) (*Application, error) {
 
 	r := chi.NewRouter()
 	r.Use(chimw.RequestID)
+	r.Use(httpx.Recoverer(logger))
 	r.Use(httpx.RequestLogger(logger))
 	r.Use(authMW.Authenticate)
 

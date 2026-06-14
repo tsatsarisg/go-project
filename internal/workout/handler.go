@@ -38,7 +38,13 @@ func (wh *Handler) HandleGetWorkoutByID(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	workout, err := wh.service.Get(r.Context(), WorkoutID(workoutID))
+	principal := auth.GetPrincipal(r)
+	if principal.IsAnonymous() {
+		httpx.WriteJson(w, http.StatusUnauthorized, httpx.Envelope{"error": "Unauthenticated"})
+		return
+	}
+
+	workout, err := wh.service.Get(r.Context(), WorkoutID(workoutID), principal.ID)
 	if err != nil {
 		httpx.WriteStoreError(r.Context(), w, wh.logger, err, errorMapping, "Failed to retrieve workout")
 		return

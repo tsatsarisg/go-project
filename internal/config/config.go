@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	EnvProduction = "production"
+	EnvProduction  = "production"
 	EnvDevelopment = "development"
 )
 

@@ -46,12 +46,3 @@ func (store *PostgresStore) GetUserByUsername(ctx context.Context, username stri
 	user.Email = Email(emailStr)
 	return user, nil
 }
-
-func (store *PostgresStore) UpdateUser(ctx context.Context, user *User) error {
-	query := `UPDATE users SET email = $1, username = $2, bio = $3, updated_at = NOW() WHERE id = $4 RETURNING updated_at`
-	err := store.db.QueryRowContext(ctx, query, string(user.Email), user.Username, user.Bio, user.ID).Scan(&user.UpdatedAt)
-	if err != nil {
-		return postgres.ClassifyError(err)
-	}
-	return nil
-}
